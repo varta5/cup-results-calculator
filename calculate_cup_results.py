@@ -16,8 +16,26 @@ def read_calculation_logic_file(filename_with_path):
         points_mapping = json.load(file)
     return points_mapping
 
-def assign_points_to_competitors():
-    pass
+def assign_points_to_competitors(competitors, points_mapping):
+    for competitor in competitors:
+        number_of_competitors_in_category = len([participant for participant in competitors if participant["Cat"] == competitor["Cat"]])
+        competitor["NumberOfCompetitorsInCategory"] = number_of_competitors_in_category
+        category_points_mapping = (
+            points_mapping[str(number_of_competitors_in_category)]
+            if str(number_of_competitors_in_category) in points_mapping
+            else points_mapping["more"]
+        )
+        place = competitor["Pl"]
+        try:
+            int(place)
+        except ValueError:
+            competitor["CupPoints"] = 0
+            continue
+        competitor["CupPoints"] = (
+            category_points_mapping[str(place)]
+            if str(place) in category_points_mapping
+            else category_points_mapping["rest"]
+        )
 
 def assign_points_to_clubs():
     pass
@@ -34,7 +52,7 @@ if __name__ == "__main__":
     filename_with_path = sys.argv[1]
     competitors = read_csv_file_of_individual_results(filename_with_path)
     points_mapping = read_calculation_logic_file("calculation_logic.json")
-    assign_points_to_competitors()
+    assign_points_to_competitors(competitors, points_mapping)
     assign_points_to_clubs()
     rank_clubs()
     render_results()
