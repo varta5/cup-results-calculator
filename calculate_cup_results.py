@@ -37,8 +37,14 @@ def assign_points_to_competitors(competitors, points_mapping):
             else category_points_mapping["rest"]
         )
 
-def assign_points_to_clubs():
-    pass
+def assign_points_to_clubs(competitors):
+    club_points = {}
+    for competitor in competitors:
+        if competitor["Clb"] in club_points:
+            club_points[competitor["Clb"]] += competitor["CupPoints"]
+        else:
+            club_points[competitor["Clb"]] = competitor["CupPoints"]
+    return club_points
 
 def rank_clubs():
     pass
@@ -53,6 +59,6 @@ if __name__ == "__main__":
     competitors = read_csv_file_of_individual_results(filename_with_path)
     points_mapping = read_calculation_logic_file("calculation_logic.json")
     assign_points_to_competitors(competitors, points_mapping)
-    assign_points_to_clubs()
-    rank_clubs()
+    club_points = assign_points_to_clubs(competitors)
+    rank_clubs() # beware of possible ties
     render_results()
