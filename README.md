@@ -1,2 +1,3 @@
 # cup-results-calculator
-Simple script which calculates the results of a cup competition
+
+Simple Python script which calculates the results of a cup competition
