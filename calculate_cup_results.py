@@ -46,8 +46,40 @@ def assign_points_to_clubs(competitors):
             club_points[competitor["Clb"]] = competitor["CupPoints"]
     return club_points
 
-def rank_clubs():
-    pass
+def convert_club_points_to_list(club_points):
+    club_points_list = []
+    for club in club_points:
+        club_points_list.append({
+            "ClubName": club,
+            "Points": club_points[club]
+        })
+    return club_points_list
+
+def order_clubs(club_points_list):
+    club_points_list.sort(key=get_club_points, reverse=True)
+    for index, club in enumerate(club_points_list, start=1):
+        club["Place"] = index
+
+def get_club_points(club):
+    return club["Points"]
+
+def rank_clubs(club_points_list):
+    # handle ties as well
+    points_to_places_map = {}
+    for club in club_points_list:
+        if str(club["Points"]) in points_to_places_map:
+            points_to_places_map[str(club["Points"])].append(club["Place"])
+        else:
+            points_to_places_map[str(club["Points"])] = [club["Place"]]
+    for club in points_to_places_map:
+        points_to_places_map[club] = stringify_places(points_to_places_map[club])
+    for club in club_points_list:
+        club["Place"] = points_to_places_map[str(club["Points"])]
+    return points_to_places_map
+
+def stringify_places(places):
+    places = [str(place) for place in places]
+    return f'{"-".join(places)}.'
 
 def render_results():
     pass
@@ -60,5 +92,7 @@ if __name__ == "__main__":
     points_mapping = read_calculation_logic_file("calculation_logic.json")
     assign_points_to_competitors(competitors, points_mapping)
     club_points = assign_points_to_clubs(competitors)
-    rank_clubs() # beware of possible ties
+    club_points_list = convert_club_points_to_list(club_points)
+    order_clubs(club_points_list)
+    rank_clubs(club_points_list)
     render_results()
